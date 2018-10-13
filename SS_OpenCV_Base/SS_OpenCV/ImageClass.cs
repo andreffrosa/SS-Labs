@@ -234,18 +234,18 @@ namespace SS_OpenCV
             }
         }
 
-        internal static void Scale(Image<Bgr, byte> origin, Image<Bgr, byte> dest, double s, int p_x, int p_y)
+        public static void Scale_point_xy(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float scaleFactor, int centerX, int centerY)
         {
             unsafe
             {
                 // direct access to the image memory(sequencial)
                 // direcion top left -> bottom right
-                MIplImage m = dest.MIplImage;
+                MIplImage m = imgCopy.MIplImage;
                 byte* dataPtr = (byte*)m.imageData.ToPointer(); // Pointer to the image
-                byte* dataPtr2 = (byte*)origin.MIplImage.imageData.ToPointer(); // Pointer to the image
+                byte* dataPtr2 = (byte*)img.MIplImage.imageData.ToPointer(); // Pointer to the image
 
-                int width = dest.Width;
-                int height = dest.Height;
+                int width = imgCopy.Width;
+                int height = imgCopy.Height;
                 int nChan = m.nChannels; // number of channels - 3
                 int padding = m.widthStep - m.nChannels * m.width; // alinhament bytes (padding)
                 int x, y;
@@ -255,8 +255,8 @@ namespace SS_OpenCV
                     for (x = 0; x < width; x++)
                     {
                         // Endereçamento Absoluto: Dataptr = dataptr_i + y*widthstep + x*nChan
-                        int x_original = (int)Math.Round( (x - (width / 2.0))/s - p_x );
-                        int y_original = (int)Math.Round( (y - (width/2.0))/ s - p_y );
+                        int x_original = (int)Math.Round( (x - (width / 2.0))/ scaleFactor - centerX);
+                        int y_original = (int)Math.Round( (y - (width/2.0))/ scaleFactor - centerY);
                         
                         // Puxar a img para o centro e só depois mover a img para o ponto escolhido
                     
@@ -352,83 +352,82 @@ namespace SS_OpenCV
                 }
 
                 // (width-1,0)
-                dataPtr2[0] = 0;/*(byte)(Math.Round((2 * (dataPtr - nChan)[0] + 4 * dataPtr[0] + 2 * (dataPtr + m.widthStep)[0] + (dataPtr + m.widthStep - nChan)[0]) / 9.0));*/
-                dataPtr2[1] = 255;/*(byte)(Math.Round((2 * (dataPtr - nChan)[1] + 4 * dataPtr[1] + 2 * (dataPtr + m.widthStep)[1] + (dataPtr + m.widthStep - nChan)[1]) / 9.0));*/
-                dataPtr2[2] = 0;/*(byte)(Math.Round((2 * (dataPtr - nChan)[2] + 4 * dataPtr[2] + 2 * (dataPtr + m.widthStep)[2] + (dataPtr + m.widthStep - nChan)[2]) / 9.0));*/
-                
+                dataPtr2[0] = (byte)(Math.Round((((dataPtr - nChan)[0] << 1) + (dataPtr[0] << 2) + ((dataPtr + m.widthStep)[0] << 1) + (dataPtr + m.widthStep - nChan)[0]) / 9.0));
+                dataPtr2[1] = (byte)(Math.Round((((dataPtr - nChan)[1] << 1) + (dataPtr[1] << 2) + ((dataPtr + m.widthStep)[1] << 1) + (dataPtr + m.widthStep - nChan)[1]) / 9.0));
+                dataPtr2[2] = (byte)(Math.Round((((dataPtr - nChan)[2] << 1) + (dataPtr[2] << 2) + ((dataPtr + m.widthStep)[2] << 1) + (dataPtr + m.widthStep - nChan)[2]) / 9.0));
+
                 dataPtr += nChan + padding;
                 dataPtr2 += nChan + padding;
-                
-            //    // Left Column
-            //    for (y = 1; y < height - 1; y++)
-            //    {
 
-            //        dataPtr2[0] = 0;/*(byte)(Math.Round((2 * (dataPtr - m.widthStep)[0] + (dataPtr + nChan - m.widthStep)[0]
-            //                          + 2 * dataPtr[0] + (dataPtr + nChan)[0]
-            //                          + 2 * (dataPtr + m.widthStep)[0] + (dataPtr + m.widthStep + nChan)[0]) / 9.0));*/
-            //        dataPtr2[1] = 0;/* (byte)(Math.Round((2 * (dataPtr - m.widthStep)[1] + (dataPtr + nChan - m.widthStep)[1]
-            //                          + 2 * dataPtr[1] + (dataPtr + nChan)[1]
-            //                          + 2 * (dataPtr + m.widthStep)[1] + (dataPtr + m.widthStep + nChan)[1]) / 9.0));*/
-            //        dataPtr2[2] = 255;/* (byte)(Math.Round((2 * (dataPtr - m.widthStep)[2] + (dataPtr + nChan - m.widthStep)[2]
-            //                          + 2 * dataPtr[2] + (dataPtr + nChan)[2]
-            //                          + 2 * (dataPtr + m.widthStep)[2] + (dataPtr + m.widthStep + nChan)[2]) / 9.0));*/
+                // Left Column
+                for (y = 1; y < height - 1; y++)
+                {
+                    dataPtr2[0] = (byte)(Math.Round((((dataPtr - m.widthStep)[0] << 1) + (dataPtr + nChan - m.widthStep)[0]
+                                      + (dataPtr[0] << 1) + (dataPtr + nChan)[0]
+                                      + ((dataPtr + m.widthStep)[0] << 1) + (dataPtr + m.widthStep + nChan)[0]) / 9.0));
+                    dataPtr2[1] = (byte)(Math.Round((((dataPtr - m.widthStep)[1] << 1) + (dataPtr + nChan - m.widthStep)[1]
+                                      + (dataPtr[1] << 1) + (dataPtr + nChan)[1]
+                                      + ((dataPtr + m.widthStep)[1] << 1) + (dataPtr + m.widthStep + nChan)[1]) / 9.0));
+                    dataPtr2[2] = (byte)(Math.Round((((dataPtr - m.widthStep)[2] << 1) + (dataPtr + nChan - m.widthStep)[2]
+                                      + (dataPtr[2] << 1) + (dataPtr + nChan)[2]
+                                      + ((dataPtr + m.widthStep)[2] << 1) + (dataPtr + m.widthStep + nChan)[2]) / 9.0));
 
-            //        dataPtr += m.widthStep;
-            //        dataPtr2 += m.widthStep;
-            //    }
+                    dataPtr += m.widthStep;
+                    dataPtr2 += m.widthStep;
+                }
 
-            //    // (height-1,0)
-            //    dataPtr2[0] = 255;/*(byte)(Math.Round((2 * (dataPtr - m.widthStep)[0] + (dataPtr + nChan - m.widthStep)[0]
-            //                          + 4 * dataPtr[0] + 2 * (dataPtr + nChan)[0]) / 9.0));*/
-            //    dataPtr2[1] = 0;/* (byte)(Math.Round((2 * (dataPtr - m.widthStep)[1] + (dataPtr + nChan - m.widthStep)[1]
-            //                          + 4 * dataPtr[1] + 2 * (dataPtr + nChan)[1]) / 9.0));*/
-            //    dataPtr2[2] = 0;/* (byte)(Math.Round((2 * (dataPtr - m.widthStep)[2] + (dataPtr + nChan - m.widthStep)[2]
-            //                          + 4 * dataPtr[2] + 2 * (dataPtr + nChan)[2]) / 9.0));*/
+                // (height-1,0)
+                dataPtr2[0] = (byte)(Math.Round((((dataPtr - m.widthStep)[0] << 1) + (dataPtr + nChan - m.widthStep)[0]
+                                          + (dataPtr[0] << 2) + ((dataPtr + nChan)[0] << 1)) / 9.0));
+                dataPtr2[1] = (byte)(Math.Round((((dataPtr - m.widthStep)[1] << 1) + (dataPtr + nChan - m.widthStep)[1]
+                                          + (dataPtr[1] << 2) + ((dataPtr + nChan)[1] << 1)) / 9.0));
+                dataPtr2[2] = (byte)(Math.Round((((dataPtr - m.widthStep)[2] << 1) + (dataPtr + nChan - m.widthStep)[2]
+                                          + (dataPtr[2] << 2) + ((dataPtr + nChan)[2] << 1)) / 9.0));
 
-            //    dataPtr += nChan;
-            //    dataPtr2 += nChan;
-                
-            //    // Bottom line
-            //    for (x = 1; x < width - 1; x++)
-            //    {
-            //        dataPtr2[0] = 0;/* (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[0] + (dataPtr - m.widthStep)[0] + (dataPtr + nChan - m.widthStep)[0]
-            //                        + 2 * (dataPtr - nChan)[0] + 2 * dataPtr[0] + 2 * (dataPtr + nChan)[0]) / 9.0));*/
-            //        dataPtr2[1] = 0;/* (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[1] + (dataPtr - m.widthStep)[1] + (dataPtr + nChan - m.widthStep)[1]
-            //                        + 2 * (dataPtr - nChan)[1] + 2 * dataPtr[0] + 2 * (dataPtr + nChan)[1]) / 9.0));*/
-            //        dataPtr2[2] = 0;/* (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[2] + (dataPtr - m.widthStep)[2] + (dataPtr + nChan - m.widthStep)[2]
-            //                        + 2 * (dataPtr - nChan)[2] + 2 * dataPtr[2] + 2 * (dataPtr + nChan)[2]) / 9.0));*/
+                dataPtr += nChan;
+                dataPtr2 += nChan;
 
-            //        dataPtr += nChan;
-            //        dataPtr2 += nChan;
-            //    }
+                // Bottom line
+                for (x = 1; x < width - 1; x++)
+                {
+                    dataPtr2[0] = (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[0] + (dataPtr - m.widthStep)[0] + (dataPtr + nChan - m.widthStep)[0]
+                                        + ((dataPtr - nChan)[0] << 1) + (dataPtr[0] << 1) + ((dataPtr + nChan)[0]<<1)) / 9.0));
+                    dataPtr2[1] = (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[1] + (dataPtr - m.widthStep)[1] + (dataPtr + nChan - m.widthStep)[1]
+                                        + ((dataPtr - nChan)[1] << 1) + (dataPtr[1] << 1) + ((dataPtr + nChan)[1] << 1)) / 9.0));
+                    dataPtr2[2] = (byte)(Math.Round(((dataPtr - nChan - m.widthStep)[2] + (dataPtr - m.widthStep)[2] + (dataPtr + nChan - m.widthStep)[2]
+                                        + ((dataPtr - nChan)[2] << 1) + (dataPtr[2] << 1) + ((dataPtr + nChan)[2] << 1)) / 9.0));
 
-            //    // (width-1,heigh-1)
-            //    dataPtr2[0] = 255;/*(byte)(Math.Round((2 * (dataPtr - nChan)[0] + 4 * dataPtr[0] + 2 * (dataPtr + m.widthStep)[0] + (dataPtr + m.widthStep - nChan)[0]) / 9.0));*/
-            //    dataPtr2[1] = 0;/*(byte)(Math.Round((2 * (dataPtr - nChan)[1] + 4 * dataPtr[1] + 2 * (dataPtr + m.widthStep)[1] + (dataPtr + m.widthStep - nChan)[1]) / 9.0));*/
-            //    dataPtr2[2] = 0;/*(byte)(Math.Round((2 * (dataPtr - nChan)[2] + 4 * dataPtr[2] + 2 * (dataPtr + m.widthStep)[2] + (dataPtr + m.widthStep - nChan)[2]) / 9.0));*/
+                    dataPtr += nChan;
+                    dataPtr2 += nChan;
+                }
 
-            //    dataPtr -= m.widthStep;
-            //    dataPtr2 -= m.widthStep;
-                
-            //    // Right Column
-            //    for (y = height - 1; y > 0 ; y--) {
+                // (width-1,heigh-1)
+                dataPtr2[0] = (byte)(Math.Round((((dataPtr - nChan)[0] << 1) + (dataPtr[0] << 2) + ((dataPtr - m.widthStep)[0] << 1) + (dataPtr - m.widthStep - nChan)[0]) / 9.0));
+                dataPtr2[1] = (byte)(Math.Round((((dataPtr - nChan)[1] << 1) + (dataPtr[1] << 2) + ((dataPtr - m.widthStep)[1] << 1) + (dataPtr - m.widthStep - nChan)[1]) / 9.0));
+                dataPtr2[2] = (byte)(Math.Round((((dataPtr - nChan)[2] << 1) + (dataPtr[2] << 2) + ((dataPtr - m.widthStep)[2] << 1) + (dataPtr - m.widthStep - nChan)[2]) / 9.0));
 
-            //        dataPtr2[0] = 0; /*(byte)(Math.Round(( (dataPtr - m.widthStep - nChan)[0] + 2 *(dataPtr - m.widthStep)[0] +
-            //                          + (dataPtr - nChan)[0]  + 2 * dataPtr[0] 
-            //                          + (dataPtr - nChan + m.widthStep)[0] + 2 * (dataPtr + m.widthStep)[0] ) / 9.0));*/
+                dataPtr -= m.widthStep;
+                dataPtr2 -= m.widthStep;
 
-            //        dataPtr2[1] = 0;/*(byte)(Math.Round(((dataPtr - m.widthStep - nChan)[1] + 2 * (dataPtr - m.widthStep)[1] +
-            //                          + (dataPtr - nChan)[1] + 2 * dataPtr[1]
-            //                          + (dataPtr - nChan + m.widthStep)[1] + 2 * (dataPtr + m.widthStep)[1]) / 9.0));*/
+                // Right Column
+                for (y = height - 2; y > 0; y--)
+                {
+                    dataPtr2[0] = (byte)(Math.Round(( (dataPtr - m.widthStep - nChan)[0] + ((dataPtr - m.widthStep)[0] << 1) +
+                                          + (dataPtr - nChan)[0]  + (dataPtr[0] << 1) 
+                                          + (dataPtr - nChan + m.widthStep)[0] + ((dataPtr + m.widthStep)[0] << 1) ) / 9.0));
 
-            //        dataPtr2[2] = 255; /* (byte)(Math.Round(((dataPtr - m.widthStep - nChan)[2] + 2 * (dataPtr - m.widthStep)[2] +
-            //                          + (dataPtr - nChan)[2] + 2 * dataPtr[2]
-            //                          + (dataPtr - nChan + m.widthStep)[2] + 2 * (dataPtr + m.widthStep)[2]) / 9.0));*/
+                    dataPtr2[1] = (byte)(Math.Round(((dataPtr - m.widthStep - nChan)[1] + ((dataPtr - m.widthStep)[1] << 1) +
+                                          + (dataPtr - nChan)[1] + (dataPtr[1] << 1)
+                                          + (dataPtr - nChan + m.widthStep)[1] + ((dataPtr + m.widthStep)[1] << 1)) / 9.0));
 
-            //        dataPtr -= m.widthStep;
-            //        dataPtr2 -= m.widthStep;
-            //    }
-              
+                    dataPtr2[2] = (byte)(Math.Round(((dataPtr - m.widthStep - nChan)[2] + ((dataPtr - m.widthStep)[2] << 1) +
+                                          + (dataPtr - nChan)[2] + (dataPtr[2] << 1)
+                                          + (dataPtr - nChan + m.widthStep)[2] + ((dataPtr + m.widthStep)[2] << 1)) / 9.0));
+
+                    dataPtr -= m.widthStep;
+                    dataPtr2 -= m.widthStep;
+                }
+
             }
         }
 

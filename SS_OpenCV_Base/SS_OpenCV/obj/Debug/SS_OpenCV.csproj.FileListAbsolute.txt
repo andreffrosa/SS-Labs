@@ -165,3 +165,16 @@ C:\Users\André\Desktop\Escola\SS\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.c
 C:\Users\André\Desktop\Escola\SS\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csproj.CopyComplete
 C:\Users\André\Desktop\Escola\SS\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.exe
 C:\Users\André\Desktop\Escola\SS\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.pdb
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_OpenCV.exe.config
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_OpenCV.exe
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_OpenCV.pdb
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csprojAssemblyReference.cache
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.AuthorsForm.resources
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.InputBox.resources
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.MainForm.resources
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.Properties.Resources.resources
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csproj.GenerateResource.cache
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csproj.CoreCompileInputs.cache
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csproj.CopyComplete
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.exe
+C:\Users\André\Desktop\Escola\SS\ss\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.pdb
