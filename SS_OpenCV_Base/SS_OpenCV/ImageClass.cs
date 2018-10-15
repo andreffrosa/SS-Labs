@@ -111,6 +111,42 @@ namespace SS_OpenCV
         }
 
 
+        // point*contrast + bright e verificar overflow
+        public static void BrightContrast(Image<Bgr, byte> img, int bright, double contrast) {
+            unsafe {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer(); // Pointer to the image
+
+                int width = img.Width;
+                int height = img.Height;
+                int nChan = m.nChannels; // number of channels - 3
+                int padding = m.widthStep - m.nChannels * m.width; // alinhament bytes (padding)
+                int x, y;
+
+                int value;
+
+                for (y = 0; y < height; y++)
+                {
+                    for (x = 0; x < width; x++)
+                    {
+                        value = (int) Math.Round(dataPtr[0] * contrast + bright);
+                        dataPtr[0] = (byte)( value > 255 ? 255 : value < 0 ? 0 : value);
+
+                        value = (int)Math.Round(dataPtr[1] * contrast + bright);
+                        dataPtr[1] = (byte)(value > 255 ? 255 : value < 0 ? 0 : value);
+
+                        value = (int)Math.Round(dataPtr[2] * contrast + bright);
+                        dataPtr[2] = (byte)(value > 255 ? 255 : value < 0 ? 0 : value);
+
+                        dataPtr += nChan;
+                    }
+
+                    //at the end of the line advance the pointer by the aligment bytes (padding)
+                    dataPtr += padding;
+                }
+            }
+        }
+
         /// <summary>
         /// Convert to gray
         /// Direct access to memory - faster method
@@ -328,8 +364,8 @@ namespace SS_OpenCV
                         // Endereço na imagem original
                         //int x_original = (int)Math.Round(((x + scaleFactor*centerX - (width / 2.0)) / scaleFactor));
                         //int y_original = (int)Math.Round(((y + scaleFactor*centerY - (height / 2.0)) / scaleFactor));
-                        int x_original = (int)Math.Round((x - (width / 2.0)) / scaleFactor + centerX);
-                        int y_original = (int)Math.Round((y - (height / 2.0)) / scaleFactor + centerY);
+                        int x_original = (int)Math.Round((x - (width / 2)) / scaleFactor + centerX);
+                        int y_original = (int)Math.Round((y - (height / 2)) / scaleFactor + centerY);
 
                         if (x_original < 0 || x_original >= width || y_original < 0 || y_original >= height)
                         {
@@ -870,25 +906,27 @@ namespace SS_OpenCV
                 // Up line
                 for (x = 1; x < width - 1; x++)
                 {
+                    // Sx = (3d+g)-(3f+i);
+                    // Sy = (g + 2h + i)-(d + 2e+f);
                     sum = (Math.Abs(((dataPtr - nChan)[0] * 3 + (dataPtr + m.widthStep - nChan)[0])
                         - ((dataPtr + nChan)[0] * 3 + (dataPtr + nChan + m.widthStep)[0]))
                         +
                         Math.Abs(((dataPtr + m.widthStep - nChan)[0] + ((dataPtr + m.widthStep)[0]) << 1) + (dataPtr + nChan + m.widthStep)[0]
-                        - ((dataPtr - nChan)[0] + ((dataPtr + nChan)[0] << 1) + (dataPtr + nChan + m.widthStep)[0])));
+                        - ((dataPtr - nChan)[0] + (dataPtr[0] << 1) + (dataPtr + nChan)[0])));
                     dataPtr2[0] = (byte)(sum > 255 ? 255 : sum);
 
                     sum = (Math.Abs(((dataPtr - nChan)[1] * 3 + (dataPtr + m.widthStep - nChan)[1])
                         - ((dataPtr + nChan)[1] * 3 + (dataPtr + nChan + m.widthStep)[1]))
                         +
                         Math.Abs(((dataPtr + m.widthStep - nChan)[1] + ((dataPtr + m.widthStep)[1]) << 1) + (dataPtr + nChan + m.widthStep)[1]
-                        - ((dataPtr - nChan)[1] + ((dataPtr + nChan)[1] << 1) + (dataPtr + nChan + m.widthStep)[1])));
+                        - ((dataPtr - nChan)[1] + (dataPtr[1] << 1) + (dataPtr + nChan)[1])));
                     dataPtr2[1] = (byte)(sum > 255 ? 255 : sum);
 
                     sum = (Math.Abs(((dataPtr - nChan)[2] * 3 + (dataPtr + m.widthStep - nChan)[2])
-                        - ((dataPtr + nChan)[2] * 3 + (dataPtr + nChan + m.widthStep)[2]))
-                        +
-                        Math.Abs(((dataPtr + m.widthStep - nChan)[2] + ((dataPtr + m.widthStep)[2]) << 1) + (dataPtr + nChan + m.widthStep)[2]
-                        - ((dataPtr - nChan)[2] + ((dataPtr + nChan)[2] << 1) + (dataPtr + nChan + m.widthStep)[2])));
+                                            - ((dataPtr + nChan)[2] * 3 + (dataPtr + nChan + m.widthStep)[2]))
+                                            +
+                                            Math.Abs(((dataPtr + m.widthStep - nChan)[2] + ((dataPtr + m.widthStep)[2]) << 1) + (dataPtr + nChan + m.widthStep)[2]
+                                            - ((dataPtr - nChan)[2] + (dataPtr[2] << 1) + (dataPtr + nChan)[2])));
                     dataPtr2[2] = (byte)(sum > 255 ? 255 : sum);
 
                     dataPtr += nChan;
