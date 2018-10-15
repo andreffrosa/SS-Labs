@@ -214,11 +214,11 @@ namespace SS_OpenCV
             //copy Undo Image
             imgUndo = img.Copy();
 
-            InputBox ff = new InputBox("theta");
+            InputBox ff = new InputBox("angle");
             ff.ShowDialog();
-            double theta = Convert.ToDouble(ff.ValueTextBox.Text);
+            float angle = (float)Convert.ToDouble(ff.ValueTextBox.Text);
 
-            ImageClass.Rotation(imgUndo, img, theta);
+            ImageClass.Rotation(imgUndo, img, angle);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
@@ -237,12 +237,12 @@ namespace SS_OpenCV
 
             InputBox ff = new InputBox("S");
             ff.ShowDialog();
-            double s = Convert.ToDouble(ff.ValueTextBox.Text);
+            float scaleFactor = (float)Convert.ToDouble(ff.ValueTextBox.Text);
 
             // Ir buscar os valores ao user
-            int x_o = 100, y_o = 100;
+            int centerX = 100, centerY = 100;
 
-            ImageClass.Scale(imgUndo, img, s, x_o, y_o);
+            ImageClass.Scale_point_xy(imgUndo, img, scaleFactor, centerX, centerY);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
